@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title> Dipuja</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;1,9..144,400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+@property --b1{syntax:'<color>';inherits:true;initial-value:#2a1442}
+@property --b2{syntax:'<color>';inherits:true;initial-value:#6b2d6e}
+:root{--ink:#fff6ef;--soft:rgba(255,246,239,.72);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;margin:0}
+body{height:100%;overflow:hidden;font-family:'DM Sans',system-ui,sans-serif;color:var(--ink);background:#1b1030;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none}
+
+/* Initial Intro Screen Styles */
+#intro-screen{position:fixed;inset:0;background:#0d0618;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity 1.2s ease, transform 1.2s ease;}
+#intro-screen.fade-out{opacity:0;pointer-events:none;transform:scale(1.08);}
+.intro-candle{width:90px;height:120px;position:relative;filter:drop-shadow(0 10px 20px rgba(0,0,0,0.5));}
+.intro-wick{width:4px;height:16px;background:#332;position:absolute;top:18px;left:50%;transform:translateX(-50%);border-radius:2px;}
+.intro-flame{width:22px;height:38px;background:radial-gradient(circle at 50% 80%, #fffae0 0%, #ff9d00 50%, #ff3b00 100%);border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;position:absolute;top:-18px;left:50%;transform:translateX(-50%) scale(0);opacity:0;transition:all 0.4s ease-out;filter:blur(0.5px);}
+.intro-flame.lit{transform:translateX(-50%) scale(1);opacity:1;animation:flicker 0.3s infinite alternate;}
+.intro-body{width:36px;height:75px;background:linear-gradient(90deg, #ff5c8a, #ff8da9, #ff5c8a);position:absolute;bottom:10px;left:50%;transform:translateX(-50%);border-radius:6px;}
+@keyframes flicker{0%{transform:translateX(-50%) scale(1) rotate(-3deg);}100%{transform:translateX(-50%) scale(1.08) rotate(3deg);}}
+
+#stage{position:fixed;inset:0;background:radial-gradient(120% 90% at 50% 0%,var(--b2),var(--b1));transition:--b1 1.2s ease,--b2 1.2s ease;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(14px,3vh,28px);padding:20px;opacity:0;transition:opacity 1.2s ease;}
+body.started #stage{opacity:1;}
+#card{width:min(62vw,300px,38vh*0.8);aspect-ratio:4/5;background:#fff6ef;padding:10px 10px 36px;border-radius:6px;box-shadow:0 30px 60px rgba(234, 251, 2, 0.683);position:relative}
+#card img{width:100%;height:100%;object-fit:cover;display:block;border-radius:2px}
+#card::after{content:'';position:absolute;inset:0;border-radius:6px;box-shadow:inset 0 0 0 1px rgba(229, 254, 3, 0.683);pointer-events:none}
+#card.float{animation:float 5s ease-in-out infinite}
+@keyframes float{50%{translate:0 -8px;rotate:1deg}}
+#txt{text-align:center;max-width:min(88vw,460px)}
+h1{font-family:'Fraunces',serif;font-weight:500;font-size:clamp(30px,7vw,52px);line-height:1.1;letter-spacing:-.01em}
+h1 i{font-weight:400}
+p{margin-top:10px;font-size:clamp(15px,3.6vw,18px);line-height:1.55;color:var(--soft)}
+.swap>*{animation:txtin .7s .25s both cubic-bezier(.2,.8,.2,1)}
+.swap>p{animation-delay:.4s}
+@keyframes txtin{from{opacity:0;transform:translateY(14px);filter:blur(6px)}}
+#hint{position:fixed;bottom:calc(22px + env(safe-area-inset-bottom,0px));left:0;right:0;text-align:center;font-size:14px;color:var(--soft);animation:pulse 2s infinite}
+@keyframes pulse{50%{opacity:.35}}
+#dots{position:fixed;top:calc(18px + env(safe-area-inset-top,0px));left:0;right:0;display:flex;justify-content:center;gap:7px}
+#dots b{width:6px;height:6px;border-radius:9px;background:rgba(255,246,239,.3);transition:all .5s}
+#dots b.on{background:var(--ink);width:22px}
+.fx{position:fixed;pointer-events:none;z-index:9;will-change:transform,opacity}
+#grid{display:none;position:relative;width:min(90vw,440px);aspect-ratio:1/.9}
+#grid img{position:absolute;aspect-ratio:4/5;object-fit:cover;border-radius:4px;border:3px solid #fff6ef;box-shadow:0 8px 18px rgba(228, 240, 2, 0.559);animation:pop .7s both cubic-bezier(.3,1.5,.5,1)}
+@keyframes pop{from{opacity:0;transform:scale(.3) rotate(-20deg)}}
+body.fin #card{display:none}body.fin #grid{display:block}
+#cake{width:70px;height:70px;display:none;flex:none;animation:bob 1.6s ease-in-out infinite;filter:drop-shadow(0 8px 14px rgba(196, 250, 3, 0.632))}
+body.cake #cake{display:block}
+@keyframes bob{50%{transform:translateY(-9px) rotate(-4deg)}}
+.fl{transform-box:fill-box;transform-origin:50% 100%;animation:flick .28s infinite alternate}
+.fl:nth-of-type(2n){animation-duration:.2s}
+@keyframes flick{from{transform:scale(1,1) rotate(-6deg)}to{transform:scale(.8,1.25) rotate(6deg)}}
+/* entrances: one per scene */
+.a0{animation:e0 1s both cubic-bezier(.2,.9,.2,1)}@keyframes e0{from{opacity:0;transform:translateY(90px)}}
+.a1{animation:e1 1s both cubic-bezier(.2,.9,.2,1)}@keyframes e1{from{opacity:0;transform:rotate(-200deg) scale(.2)}}
+.a2{animation:e2 1s both}@keyframes e2{from{opacity:0;transform:perspective(700px) rotateY(100deg)}}
+.a3{animation:e3 .9s both cubic-bezier(.2,1.4,.4,1)}@keyframes e3{from{opacity:0;transform:scale(.1)}}
+.a4{animation:e4 .9s both cubic-bezier(.2,.9,.2,1)}@keyframes e4{from{opacity:0;transform:translateX(-120vw) rotate(-15deg)}}
+.a5{animation:e5 1s both cubic-bezier(.3,1.4,.5,1)}@keyframes e5{from{opacity:0;transform:translateY(-110vh)}}
+.a6{animation:e6 1.1s both}@keyframes e6{from{opacity:0;filter:blur(30px);transform:scale(1.3)}}
+.a7{animation:e7 1.2s both;transform-origin:top center}@keyframes e7{0%{opacity:0;transform:rotate(40deg)}60%{transform:rotate(-10deg)}100%{transform:none}}
+.a8{animation:e8 1s both}@keyframes e8{from{clip-path:circle(0)}to{clip-path:circle(100%)}}
+.a9{animation:e9 1s both cubic-bezier(.2,.9,.2,1)}@keyframes e9{from{opacity:0;transform:skewX(30deg) translateX(110vw)}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01s!important;animation-iteration-count:1!important}}
+</style>
+</head>
+<body>
+
+<!-- Initial Intro Screen with Unlit Candle -->
+<div id="intro-screen">
+  <div class="intro-candle">
+    <div class="intro-wick"></div>
+    <div class="intro-flame" id="intro-flame"></div>
+    <div class="intro-body"></div>
+  </div>
+  <div style="font-family:'Fraunces',serif; font-size:clamp(22px, 5vw, 32px); color:#fff6ef; text-align:center; padding:0 20px;">Light the Candle to Begin</div>
+  <div id="intro-hint" style="font-size:14px; color:var(--soft); animation:pulse 2s infinite;">Tap anywhere to strike the lighter 🔥</div>
+</div>
+
+<div id="dots"></div>
+<div id="stage">
+  <div id="card"><img id="img" alt=""></div>
+  <div id="grid"></div>
+  <svg id="cake" viewBox="0 0 100 100" aria-hidden="true"><ellipse cx="50" cy="91" rx="44" ry="6" fill="#fff6ef" opacity=".9"/><rect x="14" y="60" width="72" height="30" rx="8" fill="#e5304f"/><path d="M14 68q9 10 18 0t18 0t18 0t18 0V63H14Z" fill="#fff6ef"/><rect x="26" y="40" width="48" height="22" rx="7" fill="#ff5a78"/><path d="M26 47q6 8 12 0t12 0t12 0t12 0V43H26Z" fill="#fff6ef"/><rect x="36" y="26" width="5" height="15" rx="2" fill="#ffd6a5"/><rect x="47.5" y="26" width="5" height="15" rx="2" fill="#ffd6a5"/><rect x="59" y="26" width="5" height="15" rx="2" fill="#ffd6a5"/><ellipse class="fl" cx="38.5" cy="20" rx="4" ry="6" fill="#ffb22e"/><ellipse class="fl" cx="50" cy="20" rx="4" ry="6" fill="#ffb22e"/><ellipse class="fl" cx="61.5" cy="20" rx="4" ry="6" fill="#ffb22e"/></svg>
+  <div id="txt" class="swap"><h1 id="h"></h1><p id="p"></p></div>
+</div>
+<div id="hint">tap anywhere</div>
+<script>
+const S=[
+{t:'Happy  Krishna Consciousness Birthday, <i>My dearest one</i>',l:'Today is all yours.',p:['#2a1442','#c4507a','#ffc98b'],m:'sun',e:['🎂','❤️','🎉']},
+{t:'Make a wish',l:'Close your eyes, take a deep breath, and wish for something big.',p:['#101a3d','#4a3b8f','#fdf2d0'],m:'moon',e:['✨','🕯️','⭐']},
+{t:'Another year of blooming',l:'You are stronger, braver, and kinder than you realize, so never hold yourself back from doing what your heart desires. I will always be by your side 🫂, supporting you through every step of life 👣, and I will stand with you forever 😚.',p:['#3b1030','#d6527f','#ffd6a5'],m:'flowers',e:['🌷','🎁','🌼']},
+{t:'Calm in every storm',l:'I have known you for the past seven years, and I have always admired how calm you are and how gracefully you handle everything. Keep carrying that same calmness and sincerity into every part of your life, and always follow your heart.',p:['#08304a','#1f8aa8','#bdf2ee'],m:'waves',e:['🎊','🌊']},
+{t:'Higher every year',l:'New year, new peaks. You have everything it takes to climb them.',p:['#2b1b4a','#8a5cc9','#ffcfa8'],m:'mountains',e:['🦋','🎁']},
+{t:'Floating with joy',l:'I want to thank my Pyari Juu😇 for bringing such a beautiful🌝, understanding😚, and wonderful girl like you into my life🫂.',p:['#0f2b3d','#3aa7a0','#e3fff5'],m:'bubbles',e:['🎇','💖','🫧']},
+{t:'Full of love',l:'I cannot change your past 😑, but I will give my best in every present moment to keep you happy 😊 and spend my future with you 🫂, standing by your side through every happiness 😇 and hardship 😌.',p:['#3a0f2a','#b3122e','#ff2a4d'],m:'hearts',e:['❤️','❤️','🎂']},
+{t:'Bright days ahead',l:'Your journey ahead is beautiful, my dearest. Just keep faith and trust in Him; He will always be there, guiding and blessing both of us.',p:['#4a1d2e','#ff8a5c','#fff1b8'],m:'rays',e:['☀️','🎉','🌻']},
+{t:'Lights for your wishes',l:'May God 🦚 fulfil all your wishes ✨ and dreams 💭. Just keep doing what you love with a pure heart 💖, without overthinking 😓 or worrying about anything, and trust 😊 that everything will fall into place 💫.',p:['#1a0f33','#7a3fa0','#ffb36b'],m:'lanterns',e:['🏮','✨','🕯️']},
+{t:'Your sky, your year',l:'Dream 🎇 big, Darling. There’s plenty of room for every dream.',p:['#06142b','#0f6b6b','#9dffc9'],m:'aurora',e:['🎊','💫','🎆']}
+];
+const FIN=['Happy Birthday, Baby! 🎂','My Ladli juu always with you💫','I am always with you🤗'];
+let s=11;const r=()=>(s=s*16807%2147483647)/2147483647;
+
+let userPhotos = [];
+let checkingIndex = 1;
+
+function loadExistingPhotos(callback) {
+  const imgTest = new Image();
+  const path = `ig${checkingIndex}.jpeg`;
+  
+  imgTest.onload = function() {
+    userPhotos.push(path);
+    checkingIndex++;
+    loadExistingPhotos(callback);
+  };
+  
+  imgTest.onerror = function() {
+    if(userPhotos.length === 0) {
+      userPhotos = ['ig1.jpeg'];
+    }
+    callback();
+  };
+  
+  imgTest.src = path;
+}
+
+const $=id=>document.getElementById(id);
+$('dots').innerHTML=S.map(()=>'<b></b>').join('');
+
+function initApp() {
+  let h='',k=0;
+  const totalPhotos = userPhotos.length;
+  
+  const put=(x,y,w)=>{
+    const currentPhoto = userPhotos[k % totalPhotos];
+    h+=`<img src="${currentPhoto}" alt="" style="left:${(x-w/2).toFixed(1)}%;top:${((y-w*.625)/.9).toFixed(1)}%;width:${w.toFixed(1)}%;animation-delay:${(k*.05).toFixed(2)}s;rotate:${((r()-.5)*18).toFixed(1)}deg">`;
+    k++;
+  };
+  const pt=(t,sc,dy)=>{const x=16*Math.pow(Math.sin(t),3),y=13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t);return [50+x*2.6*sc,8+(12-y)*2.6*sc+dy]};
+  
+  const slotsCount = Math.max(totalPhotos, 20);
+  for(let idx=0; idx<slotsCount; idx++){
+    const [x,y]=pt(idx/slotsCount*6.283+.1,1,0);
+    put(x,y,10+r()*10);
+  }
+  put(50,44,15);
+  $('grid').innerHTML=h;
+}
+
+let appStarted = false;
+let i=-1,fi=0;
+
+function fx(e,x,y,kind){ 
+  const n=kind==3?26:16;
+  for(let k=0;k<n;k++){
+    const d=document.createElement('span');d.className='fx';d.textContent=Array.isArray(e)?e[k%e.length]:e;
+    d.style.left=x+'px';d.style.top=y+'px';d.style.fontSize=(14+Math.random()*22)+'px';document.body.appendChild(d);
+    const a=Math.random()*6.283,v=70+Math.random()*190;let dx=Math.cos(a)*v,dy=Math.sin(a)*v,fr;
+    if(kind==0)fr=[{transform:'translate(0,0)',opacity:1},{transform:`translate(${dx}px,${dy-80}px) rotate(${dx}deg)`,opacity:0}];
+    else if(kind==1)fr=[{transform:'translate(0,0) scale(0)',opacity:1},{transform:`translate(${dx}px,${dy}px) scale(1.4)`,opacity:1,offset:.5},{transform:`translate(${dx*1.2}px,${dx*1.2}px) scale(0)`,opacity:0}];
+    else if(kind==2)fr=[{transform:`translate(${dx}px,${innerHeight-y+20}px)`,opacity:0},{opacity:1,offset:.2},{transform:`translate(${dx*.3}px,-${y+60}px)`,opacity:0}];
+    else fr=[{transform:`translate(${(Math.random()-.5)*innerWidth}px,-${y+40}px)`,opacity:1},{transform:`translate(${(Math.random()-.5)*innerWidth}px,${innerHeight}px) rotate(540deg)`,opacity:.8}];
+    const an=d.animate(fr,{duration:1200+Math.random()*1200,easing:'cubic-bezier(.2,.7,.3,1)',delay:Math.random()*150});an.onfinish=()=>d.remove();
+  }
+}
+
+// Mixed-size floating balloons & celebratory elements (Small, Medium, Very Big)
+function rain(n){
+  for(let k=0; k<n; k++){
+    const d=document.createElement('span');
+    d.className='fx';
+    d.textContent = k%2 === 0 ? '🎈' : '❤️';
+    
+    // Dynamic randomized sizing ranging from small to very big
+    const randomSize = 16 + Math.random() * 56; 
+    d.style.fontSize = randomSize + 'px';
+    d.style.left = (Math.random() * 92) + 'vw';
+    d.style.top = '100vh';
+    document.body.appendChild(d);
+    
+    const sw = (Math.random() - .5) * 140;
+    const duration = 3000 + Math.random() * 2500;
+    
+    d.animate([
+      {transform:'translate(0,0) rotate(-15deg)', opacity:0.9},
+      {transform:`translate(${sw}px, -${innerHeight * 0.6}px) rotate(20deg)`, opacity:1, offset:0.6},
+      {transform:`translate(${-sw}px, -${innerHeight * 1.2}px) rotate(-20deg)`, opacity:0}
+    ],{
+      duration: duration,
+      delay: Math.random() * 800,
+      easing: 'ease-out'
+    }).onfinish = () => d.remove();
+  }
+}
+
+function render(x,y){
+  const fin=i>=S.length;document.body.classList.toggle('fin',fin);document.body.classList.toggle('cake',fin||i<=0);rain(fin?12:6);
+  [...$('dots').children].forEach((d,k)=>d.classList.toggle('on',k==Math.min(Math.max(i,0),S.length-1)));
+  const h=$('h'),p=$('p'),t=$('txt');
+  let sc=S[Math.min(Math.max(i,0),S.length-1)];
+  document.getElementById('stage').style.setProperty('--b1',sc.p[0]);document.getElementById('stage').style.setProperty('--b2',sc.p[1]);
+  if(fin){h.textContent=FIN[fi%FIN.length];p.textContent=fi==0?'This is the end of the page, but not the end of the celebration.':'';fi++;
+  $('hint').textContent='tap for more';
+  fx(['🎂','❤️','🎉','🎂','❤️','🎈'],x,y,3);
+  }else{
+  h.innerHTML=sc.t;p.textContent=sc.l;
+  const c=$('card');c.className='';void c.offsetWidth;c.classList.add('a'+(i%10));
+  setTimeout(()=>c.classList.add('float'),1300);
+  $('img').src=userPhotos[Math.max(i,0) % userPhotos.length];
+  fx(sc.e,x,y,i%4);
+  }
+  t.classList.remove('swap');void t.offsetWidth;t.classList.add('swap');
+}
+
+// Handle Touch / Click on Launch
+document.body.addEventListener('pointerdown',e=>{
+  if(!appStarted) {
+    appStarted = true;
+    
+    // Step 1: Strike the lighter effect and light up the candle flame
+    $('intro-flame').classList.add('lit');
+    fx(['🔥','✨','💥'], e.clientX, e.clientY, 1);
+    
+    // Step 2: After a short pleasant burn moment, transition to the main page with mixed-size floating balloons
+    setTimeout(() => {
+      rain(15);
+      $('intro-screen').classList.add('fade-out');
+      document.body.classList.add('started');
+      i=0;
+      render(e.clientX, e.clientY);
+    }, 1000);
+    return;
+  }
+  
+  if(i>=S.length-1||i<S.length){i++}else{i=S.length}
+  render(e.clientX, e.clientY);
+  $('hint').style.opacity=.9;
+});
+
+addEventListener('keydown',e=>{
+  if(!appStarted) return;
+  if(['ArrowRight',' ','Enter'].includes(e.key)){e.preventDefault();if(i<S.length)i++;render(innerWidth/2,innerHeight/2)}
+});
+
+document.addEventListener('pointermove',e=>{
+  if(!appStarted || Math.random()>.12)return;
+  const d=document.createElement('span');d.className='fx';d.textContent='❤';d.style.cssText=`left:${e.clientX}px;top:${e.clientY}px;font-size:13px;color:#ff3355`;document.body.appendChild(d);d.animate([{opacity:.9,transform:'scale(1)'},{opacity:0,transform:'translateY(24px) scale(.2)'}],{duration:900}).onfinish=()=>d.remove();
+});
+
+// Discover existing photos on load
+loadExistingPhotos(initApp);
+</script>
+</body>
+</html>
